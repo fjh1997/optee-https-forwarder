@@ -1,0 +1,6 @@
+setup.py
+Tsecurestorage.egg-info/PKG-INFO
+Tsecurestorage.egg-info/SOURCES.txt
+Tsecurestorage.egg-info/dependency_links.txt
+Tsecurestorage.egg-info/top_level.txt
+host/main.c

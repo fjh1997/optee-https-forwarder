@@ -1,0 +1,57 @@
+#! /bin/bash
+#
+#Contact author: email to dengqiang@phytium.com.cn
+#
+
+CURDIR=`pwd`
+
+HOST_ARCH=$(echo $(arch))
+
+if [ "$HOST_ARCH" = "aarch64" ];then
+	HOST_CROSS=
+else
+	HOST_CROSS=aarch64-linux-gnu-
+fi
+
+if [ $CROSS_COMPILE64 ];then
+	HOST_CROSS=$CROSS_COMPILE64
+fi
+
+# This expects that this is place as a first level folder relative to the other
+# OP-TEE folder in a setup using default repo configuration as described by the
+# documentation in optee_os (README.md)
+ROOT=${PWD}
+ROOT=`dirname $ROOT`
+
+# Path to the toolchain
+#export PATH=${ROOT}/toolchains/aarch32/bin:$PATH
+
+# Path to the TA-DEV-KIT
+export TA_DEV_KIT_DIR=/root/export-ta_arm64
+
+# Path to the client library (GP Client API)
+export TEEC_EXPORT=/root/usr
+
+export PLATFORM=phytium
+
+# Toolchain prefix for user space code (normal world)
+HOST_CROSS_COMPILE=$HOST_CROSS
+# Toolchain prefix for the Trusted Applications
+TA_CROSS_COMPILE=$HOST_CROSS
+
+if [ "$1" = "clean" ];then
+	make clean
+	exit 0
+else
+	# Build the host application
+	python3 setup.py install
+
+	# Build the Trusted Application
+	cd $CURDIR/ta
+	make O=$CURDIR/ta/out CROSS_COMPILE=$TA_CROSS_COMPILE $@
+	#make O=$CURDIR/ta/out CROSS_COMPILE=$TA_CROSS_COMPILE CFG_TEE_TA_LOG_LEVEL=4 $@
+fi
+
+cp -a $CURDIR/ta/out/*.ta /data/optee_armtz
+
+echo "Build completed successfully."

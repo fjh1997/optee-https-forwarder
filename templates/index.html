@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件加密解密</title>
+    <link rel="stylesheet" href="../static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>文件加密与解密</h1>
+        <button id="toggle-theme" class="theme-toggle">深色模式</button>
+
+        <section class="form-section">
+            <h2>上传文件进行加密</h2>
+            <div class="form-group">
+                <form id="encrypt-form" method="post" enctype="multipart/form-data" action="/upload_encrypt">
+                    <input type="file" name="file" required>
+                    <button type="submit">加密文件</button>
+                </form>
+                <p id="encrypt-result"></p>
+                <p id="download-link"></p>
+                <button id="reopen-modal" style="display: none">重新查看密钥</button>
+            </div>
+        </section>
+
+        <section class="form-section">
+            <h2>上传文件进行解密</h2>
+            <form id="decrypt-form" method="post" enctype="multipart/form-data" action="/upload_decrypt">
+                <input type="file" name="file" required>
+                <input type="text" name="key" placeholder="请输入Base64密钥" required>
+                <button type="submit">解密文件</button>
+            </form>
+            <p id="decrypt-result"></p>
+        </section>
+    </div>
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>加密成功！</h2>
+            <p>请保存好以下密钥：</p>
+            <pre id="encryption-key"></pre>
+            <p><a id="download-encrypted-file" href="#" style="display: none;">点击下载加密文件</a></p>
+        </div>
+    </div>
+
+    <script>
+        let encryptionKeyData = null;
+let downloadLinkData = null;
+let originalFilename = null;
+
+// 从localStorage中恢复文件名
+function restoreFilename() {
+    const storedFilename = localStorage.getItem('originalFilename');
+    if (storedFilename) {
+        originalFilename = decodeURIComponent(escape(atob(storedFilename)));
+    }
+}
+
+// 保存文件名到localStorage
+function saveFilename(filename) {
+    localStorage.setItem('originalFilename', btoa(unescape(encodeURIComponent(filename))));
+}
+
+// 加密表单提交处理
+document.getElementById('encrypt-form').onsubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    try {
+        const response = await fetch('/upload', { method: 'POST', body: formData });
+        if (response.ok) {
+            const result = await response.json();
+            // 保存密钥、加密后的文件数据和文件名
+            encryptionKeyData = `密钥：${result.key}`;
+            const fileB64 = result.file;
+            // 解码文件名 (使用UTF-8编码)
+            originalFilename = atob(result.filename); // 解码为字节
+            originalFilename = decodeURIComponent(escape(originalFilename)); // 转换为UTF-8字符串
+            saveFilename(originalFilename); // 保存文件名到localStorage
+            // 将Base64编码的文件数据转换为Blob对象
+            const byteCharacters = atob(fileB64);
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            const blob = new Blob([byteArray], { type: 'application/octet-stream' });
+            const url = URL.createObjectURL(blob);
+            downloadLinkData = url;
+            // 显示模态框
+            showEncryptionModal();
+        } else {
+            const result = await response.json();
+            document.getElementById('encrypt-result').innerText = `错误：${result.error}`;
+        }
+    } catch (error) {
+        console.error('Error during encryption:', error);
+    }
+};
+
+// 解密表单提交处理
+document.getElementById('decrypt-form').onsubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    try {
+        const response = await fetch('/decrypt', { method: 'POST', body: formData });
+        if (response.ok) {
+            const result = await response.json();
+            const fileB64 = result.file;
+            // 将Base64编码的文件数据转换为Blob对象
+            const byteCharacters = atob(fileB64);
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            const blob = new Blob([byteArray], { type: 'application/octet-stream' });
+            const url = URL.createObjectURL(blob);
+            // 创建下载链接并触发下载
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = originalFilename || 'default_filename.txt'; // 使用原始文件名
+            a.click();
+            document.getElementById('decrypt-result').innerText = '解密成功！';
+        } else {
+            const result = await response.json();
+            document.getElementById('decrypt-result').innerText = `错误：${result.error}`;
+        }
+    } catch (error) {
+        console.error('Error during decryption:', error);
+    }
+};
+
+// 切换主题
+document.getElementById('toggle-theme').addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+    const button = document.getElementById('toggle-theme');
+    button.textContent = button.textContent === '深色模式' ? '浅色模式' : '深色模式';
+});
+
+// 显示加密成功的模态框
+function showEncryptionModal() {
+    const modal = document.getElementById('modal');
+    const encryptionKey = document.getElementById('encryption-key');
+    const downloadLink = document.getElementById('download-encrypted-file');
+    const reopenButton = document.getElementById('reopen-modal');
+
+    encryptionKey.innerText = encryptionKeyData;
+    downloadLink.href = downloadLinkData;
+    downloadLink.style.display = 'block';
+    modal.style.display = 'block';
+
+    // 关闭模态框
+    document.querySelector('.close').onclick = () => {
+        modal.style.display = 'none';
+    };
+    window.onclick = (event) => {
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    };
+
+    // 显示重新打开模态框的按钮
+    reopenButton.style.display = 'block';
+    reopenButton.onclick = showEncryptionModal;
+}
+
+// 初始化时隐藏重新打开模态框的按钮
+document.getElementById('reopen-modal').style.display = 'none';
+
+// 页面加载时恢复文件名
+window.onload = () => {
+    restoreFilename();
+};
+        
+    </script>
+</body>
+</html>

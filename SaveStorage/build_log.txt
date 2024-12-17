@@ -1,0 +1,38 @@
+running install
+/usr/lib/python3/dist-packages/setuptools/command/install.py:34: SetuptoolsDeprecationWarning: setup.py install is deprecated. Use build and pip and other standards-based tools.
+  warnings.warn(
+/usr/lib/python3/dist-packages/setuptools/command/easy_install.py:158: EasyInstallDeprecationWarning: easy_install command is deprecated. Use build and pip and other standards-based tools.
+  warnings.warn(
+running bdist_egg
+running egg_info
+writing Tsecurestorage.egg-info/PKG-INFO
+writing dependency_links to Tsecurestorage.egg-info/dependency_links.txt
+writing top-level names to Tsecurestorage.egg-info/top_level.txt
+reading manifest file 'Tsecurestorage.egg-info/SOURCES.txt'
+writing manifest file 'Tsecurestorage.egg-info/SOURCES.txt'
+installing library code to build/bdist.linux-aarch64/egg
+running install_lib
+running build_ext
+creating build/bdist.linux-aarch64/egg
+copying build/lib.linux-aarch64-3.10/Tsecurestorage.cpython-310-aarch64-linux-gnu.so -> build/bdist.linux-aarch64/egg
+creating stub loader for Tsecurestorage.cpython-310-aarch64-linux-gnu.so
+byte-compiling build/bdist.linux-aarch64/egg/Tsecurestorage.py to Tsecurestorage.cpython-310.pyc
+creating build/bdist.linux-aarch64/egg/EGG-INFO
+copying Tsecurestorage.egg-info/PKG-INFO -> build/bdist.linux-aarch64/egg/EGG-INFO
+copying Tsecurestorage.egg-info/SOURCES.txt -> build/bdist.linux-aarch64/egg/EGG-INFO
+copying Tsecurestorage.egg-info/dependency_links.txt -> build/bdist.linux-aarch64/egg/EGG-INFO
+copying Tsecurestorage.egg-info/top_level.txt -> build/bdist.linux-aarch64/egg/EGG-INFO
+writing build/bdist.linux-aarch64/egg/EGG-INFO/native_libs.txt
+zip_safe flag not set; analyzing archive contents...
+__pycache__.Tsecurestorage.cpython-310: module references __file__
+creating 'dist/Tsecurestorage-1.0-py3.10-linux-aarch64.egg' and adding 'build/bdist.linux-aarch64/egg' to it
+removing 'build/bdist.linux-aarch64/egg' (and everything under it)
+Processing Tsecurestorage-1.0-py3.10-linux-aarch64.egg
+removing '/usr/local/lib/python3.10/dist-packages/Tsecurestorage-1.0-py3.10-linux-aarch64.egg' (and everything under it)
+creating /usr/local/lib/python3.10/dist-packages/Tsecurestorage-1.0-py3.10-linux-aarch64.egg
+Extracting Tsecurestorage-1.0-py3.10-linux-aarch64.egg to /usr/local/lib/python3.10/dist-packages
+Tsecurestorage 1.0 is already the active version in easy-install.pth
+
+Installed /usr/local/lib/python3.10/dist-packages/Tsecurestorage-1.0-py3.10-linux-aarch64.egg
+Processing dependencies for Tsecurestorage==1.0
+Finished processing dependencies for Tsecurestorage==1.0
